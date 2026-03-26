@@ -17,22 +17,11 @@ contract VotingResultNFT is ERC721, Ownable {
 
     constructor() ERC721("VotingResult", "VRES") Ownable(msg.sender) {}
 
-    function mintResult(
-        address to,
-        bytes32 voteId,
-        uint256 yesVotes,
-        uint256 noVotes,
-        bool passed
-    ) external onlyOwner {
+    function mintResult(address to, bytes32 voteId, uint256 yesVotes, uint256 noVotes, bool passed) external onlyOwner {
         tokenId++;
 
         _mint(to, tokenId);
 
-        results[tokenId] = Result({
-            voteId: voteId,
-            yesVotes: yesVotes,
-            noVotes: noVotes,
-            passed: passed
-        });
+        results[tokenId] = Result({voteId: voteId, yesVotes: yesVotes, noVotes: noVotes, passed: passed});
     }
 }

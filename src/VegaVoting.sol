@@ -40,16 +40,11 @@ contract VegaVoting is Ownable, Pausable {
     function stake(uint256 amount, uint256 duration, uint8 multiplier) external whenNotPaused {
         require(multiplier >= 1 && multiplier <= 4);
         require(amount > 0);
+        require(duration > 0);
 
         VV_TOKEN.safeTransferFrom(msg.sender, address(this), amount);
 
-        stakes[msg.sender].push(
-            Stake({
-                amount: amount,
-                expiry: block.timestamp + duration,
-                multiplier: multiplier
-            })
-        );
+        stakes[msg.sender].push(Stake({amount: amount, expiry: block.timestamp + duration, multiplier: multiplier}));
     }
 
     function votingPower(address user) public view returns (uint256 total) {
@@ -58,19 +53,32 @@ contract VegaVoting is Ownable, Pausable {
         for (uint256 i = 0; i < userStakes.length; i++) {
             if (block.timestamp < userStakes[i].expiry) {
                 uint256 remain = userStakes[i].expiry - block.timestamp;
-                total += userStakes[i].amount * remain * remain;
+                total += userStakes[i].amount * userStakes[i].multiplier * remain * remain;
             }
         }
     }
 
-    function createVoting(
-        bytes32 id,
-        uint256 deadline,
-        uint256 threshold,
-        string calldata description
-    ) external onlyOwner {
+    function unstake(uint256 index) external whenNotPaused {
+        require(index < stakes[msg.sender].length);
+
+        Stake storage userStake = stakes[msg.sender][index];
+        require(block.timestamp >= userStake.expiry);
+        require(userStake.amount > 0);
+
+        uint256 amount = userStake.amount;
+        userStake.amount = 0;
+
+        VV_TOKEN.safeTransfer(msg.sender, amount);
+    }
+
+    function createVoting(bytes32 id, uint256 deadline, uint256 threshold, string calldata description)
+        external
+        onlyOwner
+    {
         require(votings[id].deadline == 0);
         require(deadline > block.timestamp);
+        require(threshold > 0);
+        require(bytes(description).length > 0);
 
         votings[id] = Voting({
             id: id,
@@ -110,20 +118,11 @@ contract VegaVoting is Ownable, Pausable {
         Voting storage v = votings[id];
 
         require(!v.finalized);
-        require(
-            block.timestamp >= v.deadline ||
-            v.yesVotes >= v.votingPowerThreshold
-        );
+        require(block.timestamp >= v.deadline || v.yesVotes >= v.votingPowerThreshold);
 
         v.finalized = true;
 
-        RESULT_NFT.mintResult(
-            owner(),
-            id,
-            v.yesVotes,
-            v.noVotes,
-            v.yesVotes >= v.noVotes
-        );
+        RESULT_NFT.mintResult(owner(), id, v.yesVotes, v.noVotes, v.yesVotes >= v.noVotes);
     }
 
     function pause() external onlyOwner {

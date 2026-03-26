@@ -1,66 +1,17 @@
-## Foundry
+Адреса смарт-контрактов в sepolia eth
 
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
 
-Foundry consists of:
+VegaVotingToken: 0x34fDC0c95C14CCEB1A0f878945B8d3E4C71Bf364
+VegaVoting: 0x325704Fc7F20C440884f34fBf18470C34f5EFdcB
+VegaVotingResult: 0x67C4172Eb585778e3849AD5C78A17EF069785908
 
-- **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
-- **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
-- **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
-- **Chisel**: Fast, utilitarian, and verbose solidity REPL.
 
-## Documentation
-
-https://book.getfoundry.sh/
-
-## Usage
-
-### Build
-
-```shell
-$ forge build
-```
-
-### Test
-
-```shell
-$ forge test
-```
-
-### Format
-
-```shell
-$ forge fmt
-```
-
-### Gas Snapshots
-
-```shell
-$ forge snapshot
-```
-
-### Anvil
-
-```shell
-$ anvil
-```
-
-### Deploy
-
-```shell
-$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
-```
-
-### Cast
-
-```shell
-$ cast <subcommand>
-```
-
-### Help
-
-```shell
-$ forge --help
-$ anvil --help
-$ cast --help
-```
+Сценарий:
+1. Получить токены (mint или перевод)
+2. Дать возможность контракту с голосованиями пользоваться вашими токенами (approve)
+3. Владелец контракта создаёт голосование, указывает дедлайн описание, threshold мощности голосов
+4. Пользователи могут застейкать свои токены на определённый срок с определённым коэффициентом. Чем больше сумма, срок и коэффициент, тем больше мощность голоса пользователя в голосовании
+5. После этого пользователи могут голосовать за или против, внося свою мощность голоса за свой выбор
+6. Результат голосования - вариант (за/против), набравший больше мощности
+7. Голосование заканчивается по таймауту или когда набран threshold мощности голосов
+8. После окончания голосования выпускает nft с результатом голосования в VegaVotingResult

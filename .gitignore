@@ -15,3 +15,5 @@ docs/
 
 # Remix IDE auto-generated dependencies
 .deps/
+
+/lib
